@@ -22,6 +22,10 @@ const tableHead = [
     label: "名稱",
   },
   {
+    name: "distance",
+    label: "距離 km",
+  },
+  {
     name: "rating",
     label: "評價",
   },
@@ -31,12 +35,16 @@ const tableHead = [
   },
 ];
 
+const StyledCell = styled(TableCell)`
+  padding: 0.5rem;
+`;
+
 const SortHead = ({ head, order, orderCell, handleSort }) => (
   <TableHead>
     <TableRow>
-      <TableCell />
+      <StyledCell />
       {head.map((cell) => (
-        <TableCell
+        <StyledCell
           key={cell.name}
           sortDirection={orderCell === cell.name ? order : false}
         >
@@ -47,7 +55,7 @@ const SortHead = ({ head, order, orderCell, handleSort }) => (
           >
             {cell.label}
           </TableSortLabel>
-        </TableCell>
+        </StyledCell>
       ))}
     </TableRow>
   </TableHead>
@@ -59,13 +67,14 @@ SortHead.propTypes = {
   orderCell: PropTypes.string,
   handleSort: PropTypes.func,
 };
+
 const StyledRow = styled(TableRow)`
   & > * {
     border: none;
   }
 `;
 
-const StyledCollapseCell = styled(TableCell)`
+const StyledCollapseCell = styled(StyledCell)`
   padding: 0 1rem;
 `;
 
@@ -75,20 +84,21 @@ const Row = ({ row, openDetail, handleOpenDetail }) => (
       hover
       onClick={() => handleOpenDetail(row.place_id, openDetail === false)}
     >
-      <TableCell>
+      <StyledCell>
         <IconButton
           size="small"
           onClick={() => handleOpenDetail(row.place_id, openDetail === false)}
         >
           {openDetail ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
         </IconButton>
-      </TableCell>
-      <TableCell>{row.name}</TableCell>
-      <TableCell>{row.rating}</TableCell>
-      <TableCell>{row.price_level}</TableCell>
+      </StyledCell>
+      <StyledCell>{row.name}</StyledCell>
+      <StyledCell>{row.distance}</StyledCell>
+      <StyledCell>{row.rating}</StyledCell>
+      <StyledCell>{"$".repeat(row.price_level)}</StyledCell>
     </StyledRow>
     <TableRow>
-      <StyledCollapseCell colSpan={4}>
+      <StyledCollapseCell colSpan={tableHead.length + 1}>
         <Collapse in={openDetail !== false} timeout="auto" unmountOnExit>
           <Typography variant="h6">{row.name}</Typography>
           {openDetail && (
@@ -120,6 +130,7 @@ Row.propTypes = {
   row: PropTypes.shape({
     place_id: PropTypes.string,
     name: PropTypes.string,
+    distance: PropTypes.string,
     rating: PropTypes.number,
     price_level: PropTypes.number,
   }),
@@ -161,7 +172,7 @@ export const DataTable = ({ data, openDetail, handleOpenDetail }) => {
   };
   return (
     <StyledTable>
-      <Table stickyHeader>
+      <Table stickyHeader size="small">
         <SortHead
           head={tableHead}
           order={order}

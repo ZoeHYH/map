@@ -17,8 +17,8 @@ const alignCenter = css`
 const StyledLocation = styled.div`
   position: relative;
   transform: translate(-50%, -50%);
-  width: 2rem;
-  height: 2rem;
+  width: 1rem;
+  height: 1rem;
   border-radius: 50%;
   border: 0px solid transparent;
   background: rgba(9, 157, 148, 0.8);
@@ -79,6 +79,28 @@ const StyledMap = styled.div`
   height: 100vh;
 `;
 
+function haversineDistance(a, b) {
+  const R = 6371.071;
+  let rlat1 = a.lat * (Math.PI / 180);
+  let rlat2 = b.lat * (Math.PI / 180);
+  var difflat = rlat2 - rlat1;
+  var difflng = (b.lng - a.lng) * (Math.PI / 180);
+
+  let distance =
+    2 *
+    R *
+    Math.asin(
+      Math.sqrt(
+        Math.sin(difflat / 2) * Math.sin(difflat / 2) +
+          Math.cos(rlat1) *
+            Math.cos(rlat2) *
+            Math.sin(difflng / 2) *
+            Math.sin(difflng / 2)
+      )
+    );
+  return distance;
+}
+
 export const Map = ({ center, zoom }) => {
   const [currentPosition, setCurrentPosition] = useState({
     lat: 25.038705,
@@ -116,9 +138,25 @@ export const Map = ({ center, zoom }) => {
         },
         (results, status) => {
           if (status === mapApi.places.PlacesServiceStatus.OK) {
-            setRestaurants(results);
+            const data = results.map(
+              ({ place_id, name, rating, price_level, geometry }) => {
+                let distance = haversineDistance(currentPosition, {
+                  lat: geometry.location.lat(),
+                  lng: geometry.location.lng(),
+                }).toFixed(2);
+                return {
+                  place_id,
+                  name,
+                  rating,
+                  price_level,
+                  geometry,
+                  distance,
+                };
+              }
+            );
+            setRestaurants(data);
             const state = {};
-            results.forEach((item) => (state[item.place_id] = false));
+            data.forEach((item) => (state[item.place_id] = false));
             setOpenDetail(state);
           }
         }
