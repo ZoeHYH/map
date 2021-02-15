@@ -155,18 +155,25 @@ const StyledTable = styled(TableContainer)`
   word-break: keep-all;
 `;
 
-export const DataTable = ({ data, openDetail, handleOpenDetail }) => {
+export const DataTable = ({
+  data,
+  handleData,
+  openDetail,
+  handleOpenDetail,
+}) => {
   const [order, setOrder] = useState(null);
   const [orderCell, setOrderCell] = useState(null);
 
   const handleSort = (target) => {
     if (target !== orderCell || !order || order === "asc") {
       setOrder("desc");
-      data.sort((a, b) => sortCompare(a, b, target)).reverse();
+      const newData = data.sort((a, b) => sortCompare(a, b, target)).reverse();
+      handleData(newData);
     }
     if (order === "desc") {
       setOrder("asc");
-      data.sort((a, b) => sortCompare(a, b, target));
+      const newData = data.sort((a, b) => sortCompare(a, b, target));
+      handleData(newData);
     }
     setOrderCell(target);
   };
@@ -196,6 +203,7 @@ export const DataTable = ({ data, openDetail, handleOpenDetail }) => {
 
 DataTable.propTypes = {
   data: PropTypes.array,
+  handleData: PropTypes.func,
   openDetail: PropTypes.object,
   handleOpenDetail: PropTypes.func,
 };

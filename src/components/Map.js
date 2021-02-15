@@ -85,7 +85,6 @@ function haversineDistance(a, b) {
   let rlat2 = b.lat * (Math.PI / 180);
   var difflat = rlat2 - rlat1;
   var difflng = (b.lng - a.lng) * (Math.PI / 180);
-
   let distance =
     2 *
     R *
@@ -111,6 +110,7 @@ export const Map = ({ center, zoom }) => {
   const [mapApi, setMapApi] = useState(null);
   const [restaurants, setRestaurants] = useState(null);
   const [openDetail, setOpenDetail] = useState({});
+  const [drawer, setDrawer] = useState(true);
 
   const handleApiLoaded = ({ map, maps }) => {
     setMapInstance(map);
@@ -161,9 +161,11 @@ export const Map = ({ center, zoom }) => {
           }
         }
       );
-  }, [mapApiLoaded, mapApi, mapInstance, currentPosition, openDetail]);
+  }, [mapApiLoaded, mapApi, mapInstance, currentPosition]);
 
-  const [drawer, setDrawer] = useState(true);
+  const handleRestaurants = (data) => {
+    setRestaurants(data);
+  };
 
   const toggleDrawer = (open) => (event) => {
     if (
@@ -176,10 +178,10 @@ export const Map = ({ center, zoom }) => {
     setDrawer(open);
   };
 
-  const handleOpenDetail = async (target, isOpen) => {
+  const handleOpenDetail = (target, isOpen) => {
     if (isOpen === false)
       return setOpenDetail({ ...openDetail, [target]: isOpen });
-    await new mapApi.places.PlacesService(mapInstance).getDetails(
+    new mapApi.places.PlacesService(mapInstance).getDetails(
       {
         placeId: target,
         fields: [
@@ -217,6 +219,7 @@ export const Map = ({ center, zoom }) => {
         {restaurants && (
           <DataTable
             data={restaurants}
+            handleData={handleRestaurants}
             openDetail={openDetail}
             handleOpenDetail={handleOpenDetail}
           />
